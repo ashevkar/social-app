@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       const encoder = new TextEncoder();
       
       // Send initial connection message
-      const send = (data: any) => {
+      const send = (data: Record<string, unknown>) => {
         const message = `data: ${JSON.stringify(data)}\n\n`;
         controller.enqueue(encoder.encode(message));
       };

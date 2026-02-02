@@ -150,7 +150,7 @@ export default function TweetFeed({ tab }: { tab: 'popular' | 'mySeries' | 'rece
           console.log('Appended tweets, updated state:', { 
             newCursor: cursorValue, 
             hasMore: hasMoreValue,
-            totalTweets: tweets.length + data.tweets.length
+            appendedCount: data.tweets.length
           });
         }
       }

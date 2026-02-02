@@ -1,18 +1,44 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
-type RealtimeUpdate = {
-  type: 'connected' | 'likes' | 'comments' | 'new_tweet' | 'error';
-  data?: any;
-  timestamp?: string;
-  message?: string;
-};
+/* ---------- Event Payload Types ---------- */
+
+export interface LikeUpdate {
+  tweetId: string;
+  userId: string;
+  likesCount: number;
+}
+
+export interface CommentUpdate {
+  tweetId: string;
+  commentId: string;
+  content: string;
+  userId: string;
+}
+
+export interface NewTweetUpdate {
+  id: string;
+  content: string;
+  userId: string;
+  createdAt: string;
+}
+
+/* ---------- Realtime Event ---------- */
+
+type RealtimeUpdate =
+  | { type: 'connected'; timestamp: string }
+  | { type: 'likes'; data: LikeUpdate }
+  | { type: 'comments'; data: CommentUpdate }
+  | { type: 'new_tweet'; data: NewTweetUpdate }
+  | { type: 'error'; message: string };
+
+/* ---------- Hook Options ---------- */
 
 type UseRealtimeUpdatesOptions = {
   enabled?: boolean;
-  onLike?: (update: any) => void;
-  onComment?: (update: any) => void;
-  onNewTweet?: (update: any) => void;
+  onLike?: (update: LikeUpdate) => void;
+  onComment?: (update: CommentUpdate) => void;
+  onNewTweet?: (update: NewTweetUpdate) => void;
   onError?: (error: string) => void;
 };
 
@@ -43,22 +69,26 @@ export function useRealtimeUpdates({
       eventSource.onmessage = (event) => {
         try {
           const update: RealtimeUpdate = JSON.parse(event.data);
-          
+
           switch (update.type) {
             case 'connected':
               console.log('Real-time connection established');
               break;
+
             case 'likes':
               onLike?.(update.data);
               break;
+
             case 'comments':
               onComment?.(update.data);
               break;
+
             case 'new_tweet':
               onNewTweet?.(update.data);
               break;
+
             case 'error':
-              onError?.(update.message || 'Unknown error');
+              onError?.(update.message);
               break;
           }
         } catch (error) {
@@ -70,14 +100,14 @@ export function useRealtimeUpdates({
         eventSource.close();
         eventSourceRef.current = null;
 
-        // Exponential backoff reconnection
         if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
+          const delay = Math.min(
+            1000 * Math.pow(2, reconnectAttempts.current),
+            30000
+          );
           reconnectAttempts.current++;
-          
-          reconnectTimeoutRef.current = setTimeout(() => {
-            connect();
-          }, delay);
+
+          reconnectTimeoutRef.current = setTimeout(connect, delay);
         } else {
           onError?.('Failed to maintain real-time connection');
         }
@@ -103,10 +133,7 @@ export function useRealtimeUpdates({
     if (enabled && session) {
       connect();
     }
-
-    return () => {
-      disconnect();
-    };
+    return disconnect;
   }, [enabled, session, connect, disconnect]);
 
   return { connect, disconnect };
