@@ -33,7 +33,10 @@ export default function Home() {
 
   useEffect(() => {
     // Replace with your actual fetch logic
-    fetch('/api/tweets').then(res => res.json()).then(setAllTweets);
+    fetch('/api/tweets').then(res => res.json()).then(data => {
+      // API returns { tweets, cursor, hasMore, count }
+      setAllTweets(Array.isArray(data.tweets) ? data.tweets : []);
+    });
     fetch('/api/users').then(res => res.json()).then(setAllUsers);
   }, []);
 
@@ -62,12 +65,16 @@ export default function Home() {
     }
 
     // Simple case-insensitive search
-    const filteredTweets = allTweets.filter(tweet =>
-      tweet.content.toLowerCase().includes(value.toLowerCase())
-    );
-    const filteredUsers = allUsers.filter(user =>
-      user.username.toLowerCase().includes(value.toLowerCase())
-    );
+    const filteredTweets = Array.isArray(allTweets) 
+      ? allTweets.filter(tweet =>
+          tweet.content.toLowerCase().includes(value.toLowerCase())
+        )
+      : [];
+    const filteredUsers = Array.isArray(allUsers)
+      ? allUsers.filter(user =>
+          user.username.toLowerCase().includes(value.toLowerCase())
+        )
+      : [];
 
     setSearchResults({ tweets: filteredTweets, users: filteredUsers });
   };

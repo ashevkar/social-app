@@ -35,6 +35,9 @@ export default function CreateTweet({
 
       setContent("");
       if (onTweetCreated) onTweetCreated();
+      
+      // Trigger a custom event for real-time updates
+      window.dispatchEvent(new CustomEvent('tweetCreated'));
     } catch (error) {
       console.error("Error creating tweet:", error);
     } finally {
