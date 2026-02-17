@@ -56,17 +56,29 @@ export default function NotificationPage() {
   );
 
   useEffect(() => {
+    if (!session?.user) return;
     fetch("/api/tweets/liked")
-      .then((res) => res.json())
-      .then(setLikeNotifications);
-  }, []);
+      .then((res) => {
+        if (!res.ok) return [];
+        return res.json();
+      })
+      .then((data) => setLikeNotifications(Array.isArray(data) ? data : []))
+      .catch(() => setLikeNotifications([]));
+  }, [session]);
 
   useEffect(() => {
-    if (session?.user && (session.user as SessionUser).username) {
-      fetch(`/api/tweets/tagged?username=${(session.user as SessionUser).username}`)
-        .then((res) => res.json())
-        .then(setTaggedTweets);
+    const username = session?.user && (session.user as SessionUser).username;
+    if (!username) {
+      setTaggedTweets([]);
+      return;
     }
+    fetch(`/api/tweets/tagged?username=${encodeURIComponent(username)}`)
+      .then((res) => {
+        if (!res.ok) return [];
+        return res.json();
+      })
+      .then((data) => setTaggedTweets(Array.isArray(data) ? data : []))
+      .catch(() => setTaggedTweets([]));
   }, [session]);
 
   return (

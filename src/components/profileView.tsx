@@ -1,11 +1,14 @@
 "use client";
 // import { VscAccount } from "react-icons/vsc";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import LoadingPage from "./LoadingPage";
 import { IoMdColorWand } from "react-icons/io";
 import Image from "next/image";
 
 export default function ProfilePage() {
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated" && !!session;
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -111,57 +114,61 @@ export default function ProfilePage() {
         <label className="block font-semibold">Email</label>
         <p className="text-gray-700">{profile.email}</p>
       </div>
-      <button
-        className="w-50 rounded-xl p-2  custom-border  hover:bg-amber-400  "
-        onClick={() => setShowPasswordForm(true)}
-      >
-        Change Password
-      </button>
-      {showPasswordForm && (
-        <div className="mt-4 p-4 border-4 rounded-xl bg-gray-50">
-          <div className="mb-2">
-            <label className="block font-semibold">Current Password</label>
-            <input
-              type="password"
-              className="w-full border rounded px-2 py-1"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-            />
-          </div>
-          <div className="mb-2">
-            <label className="block font-semibold">New Password</label>
-            <input
-              type="password"
-              className="w-full border rounded px-2 py-1"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-            />
-          </div>
-          <div className="mb-2">
-            <label className="block font-semibold">Confirm New Password</label>
-            <input
-              type="password"
-              className="w-full border rounded px-2 py-1"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-            />
-          </div>
-          <div className="flex justify-between pt-2">
+      {/* Change password - only for logged-in users */}
+      {isLoggedIn && (
+        <>
           <button
-        className="custom-border w-50 p-2 pl-3 hover:bg-green-500 "
-        onClick={handlePasswordChange}
+            className="w-50 rounded-xl p-2 custom-border hover:bg-amber-400"
+            onClick={() => setShowPasswordForm(true)}
           >
-            Save Password
+            Change Password
           </button>
-          <button
-        className="custom-border w-50  p-2  hover:bg-zinc-500 hover:text-white"
-        onClick={() => setShowPasswordForm(false)}
-          >
-            Cancel
-          </button>
-          </div>
-          </div>
-       
+          {showPasswordForm && (
+            <div className="mt-4 p-4 border-4 rounded-xl bg-gray-50">
+              <div className="mb-2">
+                <label className="block font-semibold">Current Password</label>
+                <input
+                  type="password"
+                  className="w-full border rounded px-2 py-1"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block font-semibold">New Password</label>
+                <input
+                  type="password"
+                  className="w-full border rounded px-2 py-1"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block font-semibold">Confirm New Password</label>
+                <input
+                  type="password"
+                  className="w-full border rounded px-2 py-1"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-between pt-2">
+                <button
+                  className="custom-border w-50 p-2 pl-3 hover:bg-green-500"
+                  onClick={handlePasswordChange}
+                >
+                  Save Password
+                </button>
+                <button
+                  className="custom-border w-50 p-2 hover:bg-zinc-500 hover:text-white"
+                  onClick={() => setShowPasswordForm(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
        </div>
             <div className="border-4 rounded-2xl p-2 mt-2 ">

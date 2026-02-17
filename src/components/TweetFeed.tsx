@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
@@ -459,19 +460,54 @@ export default function TweetFeed({ tab }: { tab: 'popular' | 'mySeries' | 'rece
       {displayedTweets.map((tweet) => (
         <div key={tweet.id} className="custom-outline bg-white rounded-lg shadow p-4 relative">
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0">
-              <Image
-                src={tweet.author.profileImage || "/avtar.jpg"}
-                alt={tweet.author.name}
-                width={40}
-                height={40}
-                className="h-10 w-10 rounded-full bg-blue-300"
-              />
-            </div>
+            {session ? (
+              <Link
+                href={`/?profile=${tweet.author.id}`}
+                className="flex-shrink-0 rounded-full hover:opacity-90"
+              >
+                <Image
+                  src={tweet.author.profileImage || "/avtar.jpg"}
+                  alt={tweet.author.name}
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-full bg-blue-300"
+                />
+              </Link>
+            ) : (
+              <div className="flex-shrink-0 rounded-full">
+                <Image
+                  src={tweet.author.profileImage || "/avtar.jpg"}
+                  alt={tweet.author.name}
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-full bg-blue-300"
+                />
+              </div>
+            )}
             <div className="flex-1 text-gray-500">
-              <div className="flex items-center space-x-1">
-                <span className="font-bold text-xl text-black">{tweet.author.name.charAt(0).toUpperCase() + tweet.author.name.slice(1)}</span>
-                <span className="text-sm">@{tweet.author.username}</span>
+              <div className="flex items-center space-x-1 flex-wrap">
+                {session ? (
+                  <Link
+                    href={`/?profile=${tweet.author.id}`}
+                    className="font-bold text-xl text-black hover:underline"
+                  >
+                    {tweet.author.name.charAt(0).toUpperCase() + tweet.author.name.slice(1)}
+                  </Link>
+                ) : (
+                  <span className="font-bold text-xl text-black">
+                    {tweet.author.name.charAt(0).toUpperCase() + tweet.author.name.slice(1)}
+                  </span>
+                )}
+                {session ? (
+                  <Link
+                    href={`/?profile=${tweet.author.id}`}
+                    className="text-sm hover:underline"
+                  >
+                    @{tweet.author.username}
+                  </Link>
+                ) : (
+                  <span className="text-sm">@{tweet.author.username}</span>
+                )}
                 <span className="">-</span>
                 <span className="text-sm">
                   {formatDistanceToNow(new Date(tweet.createdAt), {

@@ -1,18 +1,12 @@
+import { Suspense } from 'react';
 import MainPage from '@/app/mainPage';
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
 
-export default async function Home() {
-  
- const session = await getServerSession(authOptions);
-  
-    if (!session) {
-      redirect("/login");
-    }
+export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50">
-      <MainPage/>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <MainPage />
+      </Suspense>
     </main>
   );
 }

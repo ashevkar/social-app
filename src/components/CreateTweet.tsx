@@ -12,6 +12,7 @@ export default function CreateTweet({
 }) {
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<"recent" | "mySeries">(
     "recent"
   );
@@ -22,6 +23,7 @@ export default function CreateTweet({
     if (!content.trim() || !session) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch("/api/tweets", {
         method: "POST",
@@ -31,15 +33,19 @@ export default function CreateTweet({
         body: JSON.stringify({ content }),
       });
 
-      if (!res.ok) throw new Error("Failed to create tweet");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const message = (data as { error?: string }).error || res.statusText || "Failed to create tweet";
+        setError(message);
+        return;
+      }
 
       setContent("");
       if (onTweetCreated) onTweetCreated();
-      
-      // Trigger a custom event for real-time updates
-      window.dispatchEvent(new CustomEvent('tweetCreated'));
-    } catch (error) {
-      console.error("Error creating tweet:", error);
+      window.dispatchEvent(new CustomEvent("tweetCreated"));
+    } catch (err) {
+      console.error("Error creating tweet:", err);
+      setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -106,9 +112,17 @@ export default function CreateTweet({
                 rows={3}
                 placeholder="What's happening in your orkut world?"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  if (error) setError(null);
+                }}
                 disabled={isLoading}
               />
+              {error && (
+                <p className="mt-2 text-sm text-red-600 font-medium" role="alert">
+                  {error}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex justify-between">
