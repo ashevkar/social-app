@@ -1,5 +1,4 @@
 "use client";
-// import { VscAccount } from "react-icons/vsc";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import LoadingPage from "./LoadingPage";
