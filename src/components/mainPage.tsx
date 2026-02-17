@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import CreateTweet from "@/components/CreateTweet";
-import Settings from "../components/ProfileView";
+import Settings from "./ProfileView";
 import NotificationPage from "@/components/NotificationPage";
 import UserProfileContent from "@/components/UserProfileContent";
 import { useSession } from "next-auth/react";
