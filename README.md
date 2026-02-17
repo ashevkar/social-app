@@ -15,29 +15,25 @@ The application uses the Next.js App Router structure.
 
 This section describes the typical journey a user takes through the application:
 
-1.  **🔑 Authentication:**
-    * A new visitor typically lands on the login page.
-    * If they don't have an account, they can navigate to the Sign Up page to register (`Create` User operation ✨).
-    * After signing up, or if they already have an account, they Log In using their credentials (`Read` User operation for verification ✔️). NextAuth.js handles session creation.
-2.  **📰 Core Interaction (Logged In):**
-    * Upon successful login, the user is usually directed to the main feed.
-    * **Feed:** The user can view a list of recent tweets from various users (`Read` Tweet operation 👀).
-    * **Tweeting:** The user can create their own tweets using a text input/form (`Create` Tweet operation ✍️). The new tweet appears in the feed.
-    * **Tweet Management:** Users can delete their own tweets (`Delete` Tweet operation 🗑️).
-    * **Liking:** Users can like or unlike any tweet in the feed (`Create`/`Delete` Like operation ❤️).
-3.  **👤 Profile Management:**
-    * Users can navigate to their profile page (`Read` User operation).
-    * They can edit their profile information, such as adding or updating their bio, name, or profile picture (`Update` User operation ✏️).
-4.  **🔔 Notifications:**
-    * The notification section allows users to see who has liked their tweets (`Read` Like operation 👍).
-    * It also shows mentions where other users have tagged them in tweets (`Read` Tweet operation 🗣️).
-5.  **⚙️ Settings:**
-    * In the settings area, users can change their account password (`Update` User operation 🔐).
-    * Users also have the option to permanently delete their account and all associated data (`Delete` User operation ❌).
-6.  **👋 Logout:**
-    * Users can log out of their account, which clears their session via NextAuth.js.
+1.  **🏠 Main page (no login required):**
+    * Anyone can visit the main page and see the feed layout (navbar, tweet feed, search bar).
+    * **Guests** see a "Login or Sign up" prompt and can browse tweets; author names/usernames are not clickable.
+    * **Logged-in users** see the full feed, can post, and can click any author's name or @username to view that user's profile.
+2.  **🔑 Authentication:**
+    * Sign up via the Sign Up page (`Create` User operation ✨). Log in using credentials (`Read` User operation ✔️). NextAuth.js handles sessions.
+3.  **📰 Core interaction (logged in):**
+    * **Feed:** View recent tweets (`Read` Tweet 👀). Tabs: Recent Tweets / My Series.
+    * **Tweeting:** Create tweets (`Create` Tweet ✍️). Errors (e.g. Unauthorized) are shown inline.
+    * **Tweet management:** Delete your own tweets (`Delete` Tweet 🗑️). **Liking:** Like/unlike tweets (`Create`/`Delete` Like ❤️).
+4.  **👤 User profiles:**
+    * **View another user:** Click a name or @username in the feed or search. The center content switches to that user's profile (same navbar and search bar). URL: `/?profile=userId`. "Back to feed" returns to the feed. Only logged-in users can open profiles.
+    * **Your profile & settings:** Sidebar → Profile, Settings. Edit account, change password, appearance (sidebar color), delete account.
+5.  **🔔 Notifications:**
+    * Notifications tab (logged-in only) currently shows "Notifications are temporarily disabled."
+6.  **⚙️ Settings:** Change password, appearance, delete account (`Delete` User ❌).
+7.  **👋 Logout:** Via sidebar; session cleared via NextAuth.js.
 
-The application demonstrates **CRUD (Create ➕, Read 👀, Update 🔄, Delete ❌)** operations for key entities like Users and Tweets through these user interactions, managed via API requests to the Next.js backend and interactions with the Prisma ORM and the database.
+The application demonstrates **CRUD** operations for Users and Tweets via the Next.js API and Prisma.
 
 ## ✅ Features
 
@@ -56,9 +52,9 @@ The application demonstrates **CRUD (Create ➕, Read 👀, Update 🔄, Delete 
     * *💬 Comment functionality modeled*
     * *➕ Follow functionality modeled*
 * **👤 User Profiles:**
-    * View Profile (`GET /api/profile`)
-    * Update Profile (`PUT /api/profile`)
-    * Change Password (`POST /api/change-password`)
+    * View own profile / update (`GET /api/profile`, `PUT /api/profile`)
+    * View another user's profile (`GET /api/user/[id]` — requires auth; returns name, username, bio, profileImage, followers/following counts, their tweets)
+    * Change Password (`POST /api/change-password`) — in Settings for logged-in users
     * Delete Account (`DELETE /api/user/[id]`)
 * **🔧 Debugging:**
     * Database Connection Check (`GET /api/debug`)
@@ -66,7 +62,7 @@ The application demonstrates **CRUD (Create ➕, Read 👀, Update 🔄, Delete 
 
 ## 💻 Technologies Used
 
-* **Framework:** [Next.js](https://nextjs.org/) (v15.3.1, App Router)
+* **Framework:** [Next.js](https://nextjs.org/) (v15.3.8, App Router)
 * **Language:** [TypeScript](https://www.typescriptlang.org/)
 * **Authentication:** [NextAuth.js](https://next-auth.js.org/) (v4.24.11) - Credentials Provider
 * **Database ORM:** [Prisma](https://www.prisma.io/) (v6.6.0)
@@ -128,6 +124,13 @@ The application demonstrates **CRUD (Create ➕, Read 👀, Update 🔄, Delete 
     ```
 
 2.  Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📋 UI & routing summary
+
+* **Main page (`/`):** Feed + shared layout (left sidebar, center content, right search/trends). Center shows either the tweet feed or a user profile when `?profile=userId` is in the URL (logged-in only).
+* **Sidebar:** Same on main page and when viewing a profile — Orkut logo, Home, Notifications, Profile, Settings, Login/Sign up or Logout. Right sidebar: search (tweets/users) and trends.
+* **User profile view:** Triggered by clicking an author in the feed or a user in search; stays on `/` with `?profile=id`. `/user/[id]` redirects to `/?profile=[id]` for compatibility.
+* **Guests:** Can see the feed; profile links are disabled; posting and profile viewing require login.
 
 ## ☁️ Deployment
 
